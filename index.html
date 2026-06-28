@@ -1,1 +1,579 @@
-Touch Glass
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÆVOLUTION — Toshlyra Circle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00f5ff;
+    --magenta: #ff00cc;
+    --gold: #ffd700;
+    --gold-bright: #fff176;
+    --bg-dark: #080810;
+    --bg-mid: #0d0d1a;
+    --text-dark: #e0e0f0;
+    --panel-dark: rgba(10,10,25,0.85);
+    --bg-light: #f0eef8;
+    --bg-mid-light: #ddd8f0;
+    --text-light: #1a1030;
+    --panel-light: rgba(240,238,248,0.92);
+  }
+
+  [data-theme="dark"] {
+    --bg: var(--bg-dark);
+    --bg-mid-val: var(--bg-mid);
+    --text: var(--text-dark);
+    --panel: var(--panel-dark);
+    --scanline-color: rgba(0,0,0,0.18);
+    --border-glow: rgba(0,245,255,0.15);
+  }
+  [data-theme="light"] {
+    --bg: var(--bg-light);
+    --bg-mid-val: var(--bg-mid-light);
+    --text: var(--text-light);
+    --panel: var(--panel-light);
+    --scanline-color: rgba(100,80,160,0.06);
+    --border-glow: rgba(180,0,200,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--scanline-color) 0px,
+      var(--scanline-color) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* GLITCH OVERLAY */
+  .glitch-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    background: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(255,0,204,0.08));
+    transition: opacity 0.05s;
+  }
+  .glitch-overlay.active { opacity: 1; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    background: transparent;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover {
+    background: var(--cyan);
+    color: var(--bg-dark);
+    box-shadow: 0 0 12px var(--cyan);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    padding: 40px 20px 20px;
+    gap: 32px;
+  }
+
+  /* TITLE */
+  .site-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradShift 3s linear infinite;
+    text-align: center;
+  }
+  @keyframes gradShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* CENTER IMAGE */
+  .center-img-wrap {
+    width: 500px;
+    max-width: 90vw;
+    height: 500px;
+    max-height: 90vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .center-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .center-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(5rem, 20vw, 10rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradShift 2s linear infinite;
+    border: 1px solid var(--border-glow);
+  }
+
+  /* MAIN NAV BUTTONS */
+  .main-nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .nav-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-decoration: none;
+    color: var(--text);
+    padding: 14px 22px;
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.1s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+    background-size: 200% auto;
+    animation: gradShift 2s linear infinite;
+  }
+  .nav-btn.lexicon-btn {
+    background: linear-gradient(135deg, rgba(0,245,255,0.12), rgba(255,0,204,0.12));
+    border-color: transparent;
+  }
+  .nav-btn.lexicon-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+    background-size: 200% auto;
+    animation: gradShift 2s linear infinite;
+    opacity: 0.15;
+  }
+  .nav-btn:hover {
+    transform: scale(1.04);
+    animation: btnGlitch 0.3s steps(2) forwards;
+    color: var(--cyan);
+  }
+  @keyframes btnGlitch {
+    0%   { transform: scale(1.04) translate(0,0); }
+    25%  { transform: scale(1.04) translate(-2px, 1px) skewX(-2deg); }
+    50%  { transform: scale(1.04) translate(2px, -1px) skewX(2deg); }
+    75%  { transform: scale(1.04) translate(-1px, 2px); }
+    100% { transform: scale(1.04) translate(0,0); }
+  }
+
+  /* GOLD BUTTONS — same shape as nav-btn, gold palette */
+  .gold-nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .gold-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-decoration: none;
+    padding: 14px 22px;
+    border: 1px solid rgba(255,215,0,0.15);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), #e6b800, var(--gold-bright), var(--gold));
+    background-size: 300% auto;
+    animation: goldShift 2.5s linear infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gold-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--panel);
+    z-index: -1;
+  }
+  .gold-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright), #e6b800, var(--gold-bright), var(--gold));
+    background-size: 300% auto;
+    animation: goldShift 2.5s linear infinite;
+  }
+  .gold-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 14px rgba(255,215,0,0.25);
+    animation: goldShift 2.5s linear infinite, btnGlitch 0.3s steps(2) forwards;
+  }
+  @keyframes goldShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
+  }
+
+  /* LINK CLOUD BUTTON */
+  .links-toggle-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    border: none;
+    padding: 16px 36px;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+    background-size: 200% auto;
+    animation: gradShift 2s linear infinite;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s;
+  }
+  .links-toggle-btn:hover {
+    transform: scale(1.06);
+    animation: gradShift 2s linear infinite, btnGlitch 0.3s steps(2) forwards;
+  }
+
+  /* LINK CLOUD */
+  .link-cloud-wrap {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s ease;
+    overflow: hidden;
+  }
+  .link-cloud-wrap.open { grid-template-rows: 1fr; }
+  .link-cloud-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .link-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 20px 0 4px;
+  }
+
+  /* === LINK ENTRIES — add new links here === */
+  .cloud-link {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-decoration: none;
+    padding: 10px 18px;
+    border: 1px solid var(--border-glow);
+    background: var(--panel);
+    color: var(--text);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .cloud-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,245,255,0.08), rgba(255,0,204,0.08));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cloud-link:hover::before { opacity: 1; }
+  .cloud-link:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,245,255,0.2);
+    animation: btnGlitch 0.3s steps(2) forwards;
+  }
+
+  /* BOTTOM EXPANDABLES */
+  .bottom-section {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 40px;
+  }
+  .expandable {
+    flex: 1;
+    min-width: 220px;
+    max-width: 340px;
+  }
+  .expand-toggle {
+    width: 100%;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--panel);
+    border: 1px solid var(--border-glow);
+    color: var(--text);
+    padding: 10px 16px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .expand-toggle:hover { border-color: var(--magenta); color: var(--magenta); }
+  .expand-toggle .arrow { transition: transform 0.3s; display: inline-block; }
+  .expand-toggle.open .arrow { transform: rotate(180deg); }
+  .expand-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+    overflow: hidden;
+    border: 1px solid var(--border-glow);
+    border-top: none;
+  }
+  .expand-body.open { grid-template-rows: 1fr; }
+  .expand-body-inner {
+    min-height: 0;
+    padding: 0 16px;
+    overflow: hidden;
+  }
+  .expand-body.open .expand-body-inner { padding: 16px; }
+  .expand-body-inner p, .expand-body-inner ul {
+    font-size: 0.72rem;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+  .expand-body-inner ul { padding-left: 16px; }
+  .expand-body-inner a {
+    color: var(--cyan);
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+  .expand-body-inner a:hover { text-decoration: underline; }
+
+  /* GLITCH CLICK EFFECT */
+  @keyframes fullGlitch {
+    0%   { transform: translate(0,0) skew(0); filter: none; }
+    10%  { transform: translate(-4px,2px) skew(-3deg); filter: hue-rotate(90deg) brightness(1.4); }
+    20%  { transform: translate(4px,-2px) skew(3deg); filter: hue-rotate(180deg); }
+    30%  { transform: translate(-2px,4px) skew(-1deg); filter: brightness(1.6) saturate(2); }
+    40%  { transform: translate(2px,-4px) skew(1deg); filter: hue-rotate(270deg); }
+    50%  { transform: translate(0,0) skew(0); filter: none; }
+    60%  { transform: translate(-3px,1px) skew(-2deg); filter: hue-rotate(45deg); }
+    80%  { transform: translate(3px,-1px) skew(2deg); filter: none; }
+    100% { transform: translate(0,0) skew(0); filter: none; }
+  }
+  body.glitching .main { animation: fullGlitch 0.4s steps(3) forwards; }
+
+  @media (max-width: 540px) {
+    .main { padding: 30px 12px 16px; gap: 22px; }
+    .main-nav { gap: 8px; }
+    .nav-btn, .gold-btn { font-size: 0.65rem; padding: 12px 14px; letter-spacing: 2px; }
+    .links-toggle-btn { font-size: 0.7rem; padding: 14px 24px; }
+    .bottom-section { flex-direction: column; align-items: center; }
+    .expandable { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="glitch-overlay" id="glitchOverlay"></div>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">◐ THEME</button>
+
+<main class="main">
+
+  <div class="site-title">ÆVOLUTION</div>
+
+  <!-- CENTER IMAGE — replace placeholder with <img> once gif is in assets/ -->
+  <div class="center-img-wrap">
+    <!-- UNCOMMENT WHEN GIF IS READY:
+    <img src="assets/toshlyraishtarstar.gif" alt="Toshlyra Ishtar Star">
+    -->
+    <div class="center-img-placeholder">Æ</div>
+  </div>
+
+  <!-- MAIN NAV -->
+  <nav class="main-nav">
+    <a class="nav-btn" href="https://sites.google.com/view/touchglass/" target="_blank" rel="noopener" onclick="triggerGlitch()">ÆVOLUTION MUSIC</a>
+    <a class="nav-btn" href="https://ishtarofficial.github.io/ae-lexicon/nexus.html" target="_blank" rel="noopener" onclick="triggerGlitch()">NEXUS</a>
+    <a class="nav-btn lexicon-btn" href="https://ishtarofficial.github.io/ae-lexicon/" target="_blank" rel="noopener" onclick="triggerGlitch()">LÆXICON</a>
+  </nav>
+
+  <!-- GOLD SUPPORT BUTTONS -->
+  <div class="gold-nav">
+    <a class="gold-btn" href="https://ko-fi.com/toshlyra" target="_blank" rel="noopener" onclick="triggerGlitch()">KO-FI</a>
+    <a class="gold-btn" href="https://toshlyra.gumroad.com/l/CARDREADER" target="_blank" rel="noopener" onclick="triggerGlitch()">CARDREADER</a>
+  </div>
+
+  <!-- LINK CLOUD TOGGLE -->
+  <button class="links-toggle-btn" onclick="toggleLinks(); triggerGlitch()">◈ CONNECT ◈</button>
+
+  <div class="link-cloud-wrap" id="linkCloud">
+    <div class="link-cloud-inner">
+      <div class="link-cloud">
+        <!-- === ADD NEW LINKS BELOW — copy one <a> block and change href + text === -->
+        <a class="cloud-link" href="https://substack.com/@rayxglitter" target="_blank" rel="noopener">SUBSTACK</a>
+        <a class="cloud-link" href="https://www.youtube.com/@ÆVOLUTION-MUSIC" target="_blank" rel="noopener">YOUTUBE</a>
+        <!-- === END LINK ZONE === -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM EXPANDABLES -->
+  <div class="bottom-section">
+
+    <div class="expandable">
+      <button class="expand-toggle" id="disclaimerToggle" onclick="toggleExpand('disclaimer')">
+        DISCLAIMER <span class="arrow">▾</span>
+      </button>
+      <div class="expand-body" id="disclaimerBody">
+        <div class="expand-body-inner">
+          <p><strong>Content Disclaimer</strong></p>
+          <p>This website showcases the artistic works, personal expression and statements of Toshlyra©, Ray Toshlyra©, and The Toshlyra Circle©. The content reflects a variety of perspectives and viewpoints, some of which may differ from your own.</p>
+          <br>
+          <p><strong>What to Expect</strong></p>
+          <ul>
+            <li>Artificial Intelligence and Transhumanist Topics</li>
+            <li>Diverse viewpoints and creative expression.</li>
+            <li>Some content may touch on sensitive subjects. Please be aware of this before engaging.</li>
+            <li>Thought-provoking artwork that may challenge your perception and spark new ideas.</li>
+            <li>Diverse statements and philosophies that explore a variety of viewpoints, some of which may differ from your own.</li>
+          </ul>
+          <br>
+          <p><strong>Please Note</strong></p>
+          <ul>
+            <li>This website is not intended to be a platform for debate or argument.</li>
+            <li>The views expressed here belong solely to Toshlyra©, Ray Toshlyra©, and The Toshlyra Circle©.</li>
+          </ul>
+          <br>
+          <p><strong>Openness is Welcome</strong></p>
+          <p>We appreciate your interest in our work. While we don't actively solicit discussions on the site, respectful comments and questions are always welcome via the contact link.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expand-toggle" id="contactToggle" onclick="toggleExpand('contact')">
+        CONTACT <span class="arrow">▾</span>
+      </button>
+      <div class="expand-body" id="contactBody">
+        <div class="expand-body-inner">
+          <p>Reach out via:<br><br>
+          <a href="mailto:toshlyra@protonmail.com">toshlyra@protonmail.com</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  // THEME
+  const saved = localStorage.getItem('ae-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ae-theme', next);
+    triggerGlitch();
+  }
+
+  // GLITCH
+  function triggerGlitch() {
+    const overlay = document.getElementById('glitchOverlay');
+    overlay.classList.add('active');
+    document.body.classList.add('glitching');
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      document.body.classList.remove('glitching');
+    }, 400);
+  }
+  document.body.addEventListener('click', triggerGlitch);
+
+  // LINK CLOUD
+  let linksOpen = false;
+  function toggleLinks() {
+    linksOpen = !linksOpen;
+    document.getElementById('linkCloud').classList.toggle('open', linksOpen);
+  }
+
+  // EXPANDABLES
+  function toggleExpand(id) {
+    const body = document.getElementById(id + 'Body');
+    const toggle = document.getElementById(id + 'Toggle');
+    const isOpen = body.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+  }
+</script>
+</body>
+</html>
