@@ -1,0 +1,19 @@
+{
+  "name": "Your Website Name",
+  "short_name": "Website",
+  "icons": [
+    {
+      "src": "/aecon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/aecon512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#00ffff",
+  "background_color": "#ff00ff",
+  "display": "standalone"
+}
